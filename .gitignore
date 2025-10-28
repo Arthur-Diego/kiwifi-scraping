@@ -1,0 +1,45 @@
+# Virtual environments
+.venv/
+venv*/
+env*/
+ENV*/
+venv-api-scraping/
+venv-project-api-scraping/
+venv-project-scraping/
+
+# Pastas específicas mencionadas
+Resultados/
+
+# Arquivos do PyCharm / IntelliJ IDEA
+.idea/
+*.iml
+
+# Cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.p~
+*.swp
+
+# Build e distribuição
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Configurações do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Arquivos de ambiente
+*.env
+.env.*
+
+# Arquivos temporários
+*.tmp
+*.bak
+
+# Ou
