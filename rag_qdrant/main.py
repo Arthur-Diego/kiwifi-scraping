@@ -3,12 +3,12 @@ from pathlib import Path
 from typing import List
 
 from .config import ChunkingConfig, EmbeddingConfig, QdrantConfig, Paths
-from .ingestion import TextLoader
-from .tokenization import TokenTools
-from .chunker import SemanticChunker
-from .embeddings import SentenceEmbedder
-from .exporter import ChunkExporter
-from .qdrant_writer import QdrantRepository
+from .step1_ingestion import TextLoader
+from .step2_tokenization import TokenTools
+from .step4_chunker import SemanticChunker
+from .step3_embeddings import SentenceEmbedder
+from .step5_exporter import ChunkExporter
+from .step6_qdrant_writer import QdrantRepository
 
 
 def run_pipeline(
@@ -47,7 +47,8 @@ def run_pipeline(
                     source=source,
                     text=text,
                     date=date,
-                    section=meta.get("section")
+                    section=meta.get("section"),
+                    topic_hint = meta.get("topic_hint")
                 )
                 all_chunks.extend(chunks)
 
@@ -60,7 +61,8 @@ def run_pipeline(
                         source=source,
                         text=text,
                         date=date,
-                        section=meta.get("section")
+                        section=meta.get("section"),
+                        topic_hint = meta.get("topic_hint")
                     )
                     all_chunks.extend(chunks)
     # =====================================================
@@ -89,8 +91,8 @@ def build_argparser() -> argparse.ArgumentParser:
     )
     p.add_argument(
         "--export",
-        default="chunks.jsonl",
-        help="Nome do arquivo de exportação JSONL (padrão: chunks.jsonl)"
+        default="chunksbk.jsonl",
+        help="Nome do arquivo de exportação JSONL (padrão: chunksbk.jsonl)"
     )
     p.add_argument(
         "--collection",

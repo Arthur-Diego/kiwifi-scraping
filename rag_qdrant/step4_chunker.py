@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
-from .tokenization import TokenTools
+from .step2_tokenization import TokenTools
 from .domain import Chunk
 from .config import ChunkingConfig
 
@@ -19,7 +19,8 @@ class SemanticChunker:
     embedder: "SentenceEmbedder"  # type: ignore
     cfg: ChunkingConfig
 
-    def chunk_text(self, source: str, text: str, date: str | None = None, section: str | None = None) -> List[Chunk]:
+    def chunk_text(self, source: str, text: str, date: str | None = None, section: str | None = None,
+                   topic_hint: str | None = None) -> List[Chunk]:
         sentences = self.token_tools.split_sentences(text)
         if not sentences:
             return []
@@ -28,12 +29,13 @@ class SemanticChunker:
         total_tokens = self.token_tools.count_tokens(text)
         if total_tokens > self.cfg.max_tokens_per_file:
             # Construir janelas de ~max_tokens_per_file sem quebrar frases
-            return self._chunk_large_file(source, sentences, date, section)
+            return self._chunk_large_file(source, sentences, date, section, topic_hint)
 
         # 2) Chunkificação normal
-        return self._chunk_sentences(source, sentences, date, section)
+        return self._chunk_sentences(source, sentences, date, section, topic_hint)
 
-    def _chunk_large_file(self, source: str, sentences: List[str], date: str | None, section: str | None) -> List[Chunk]:
+    def _chunk_large_file(self, source: str, sentences: List[str], date: str | None, section: str | None,
+                          topic_hint: str | None) -> List[Chunk]:
         """
         Divide o arquivo em janelas (sem quebrar frases) de até max_tokens_per_file,
         e em seguida, cada janela passa pelo mesmo processo semântico fino.
@@ -57,11 +59,11 @@ class SemanticChunker:
 
         # Agora refina cada janela com o método semântico fino
         for w in window_chunks:
-            chunks.extend(self._chunk_sentences(source, self.token_tools.split_sentences(w), date, section, starting_index=len(chunks)))
-
+            chunks.extend(self._chunk_sentences(source, self.token_tools.split_sentences(w), date, section, topic_hint, starting_index=len(chunks)))
         return chunks
 
-    def _chunk_sentences(self, source: str, sentences: List[str], date: str | None, section: str | None, starting_index: int = 0) -> List[Chunk]:
+    def _chunk_sentences(self, source: str, sentences: List[str], date: str | None, section: str | None,
+                         topic_hint: str | None, starting_index: int = 0) -> List[Chunk]:
         tokens = self.token_tools.tokens_for_sentences(sentences)
         # Embeddings por sentença para medir quedas de similaridade
         sent_vecs = self.embedder.encode(sentences)
@@ -87,7 +89,7 @@ class SemanticChunker:
                     token_count=self.token_tools.count_tokens(text),
                     start_sentence=start_idx,
                     end_sentence=i-1,
-                    date=date, section=section
+                    date=date, section=section, topic_hint=topic_hint
                 ))
                 chunk_idx += 1
 
@@ -105,7 +107,7 @@ class SemanticChunker:
                     token_count=self.token_tools.count_tokens(text),
                     start_sentence=start_idx,
                     end_sentence=i-1,
-                    date=date, section=section
+                    date=date, section=section, topic_hint=topic_hint
                 ))
                 chunk_idx += 1
                 buf, buf_tok, start_idx = self._with_overlap(buf, self.cfg.overlap_tokens), self.token_tools.count_tokens(" ".join(self._with_overlap(buf, self.cfg.overlap_tokens))), i
@@ -125,7 +127,7 @@ class SemanticChunker:
                 token_count=self.token_tools.count_tokens(text),
                 start_sentence=start_idx,
                 end_sentence=len(sentences)-1,
-                date=date, section=section
+                date=date, section=section, topic_hint=topic_hint
             ))
 
         return chunks

@@ -2,11 +2,12 @@ import nltk
 from typing import List
 import tiktoken
 
-# Baixa o modelo de sentenças uma vez (persistência local de NLTK)
-try:
-    nltk.data.find("tokenizers/punkt")
-except LookupError:
-    nltk.download("punkt")
+# ✅ Garante que as dependências do NLTK estão disponíveis
+for resource in ["punkt", "punkt_tab"]:
+    try:
+        nltk.data.find(f"tokenizers/{resource}")
+    except LookupError:
+        nltk.download(resource)
 
 class TokenTools:
     """

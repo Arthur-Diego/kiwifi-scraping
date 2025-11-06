@@ -31,7 +31,7 @@ class TextLoader:
                 parts = rel.parts[:-1]  # todas as pastas antes do arquivo
                 meta = {
                     "section": parts[0] if len(parts) > 0 else None,
-                    "subsection": parts[1] if len(parts) > 1 else None,
+                    "topic_hint": parts[1] if len(parts) > 1 else None,
                     "video": file.stem
                 }
 
