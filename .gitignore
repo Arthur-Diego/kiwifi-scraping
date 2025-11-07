@@ -43,3 +43,23 @@ Thumbs.db
 *.bak
 
 # Ou
+
+# ==============================
+# Dados gerados pela aplicação
+# ==============================
+exports/
+*.jsonl
+*.csv
+*.parquet
+*.sqlite
+*.db
+
+# ==============================
+# Qdrant data (NÃO versionar)
+# ==============================
+qdrant_storage/
+qdrant_snapshots/
+qdrant_storage/.qdrant_fs_check
+qdrant_storage/aliases/
+qdrant_storage/collections/
+qdrant_storage/raft_state.json

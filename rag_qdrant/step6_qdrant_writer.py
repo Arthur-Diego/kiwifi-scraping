@@ -59,6 +59,7 @@ class QdrantRepository:
             batch_texts.append(c.text)
             payloads.append({
                 "source": c.source,
+                "text": c.text,
                 "chunk_index": c.chunk_index,
                 "token_count": c.token_count,
                 "date": str(c.date),  # ✅ garante serialização
