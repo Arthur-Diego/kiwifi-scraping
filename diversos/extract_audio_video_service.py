@@ -6,7 +6,7 @@ import subprocess
 # CONFIGURAÇÕES DO USUÁRIO
 # ================================
 M3U8_URLS = [
-    "https://d3pjuhbfoxhm7c.cloudfront.net/ofutO348rDwCi2K/2024/10/13/f62639be-053c-485a-a72f-1862782be207/f62639be-053c-485a-a72f-1862782be207-1080p.m3u8"]  # Adicione várias URLs aqui
+    "HTTP::TESTE"]  # Adicione várias URLs aqui
 PASTA_SAIDA = "Resultados"
 
 # Modelo da OpenAI
