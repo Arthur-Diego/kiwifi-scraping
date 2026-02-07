@@ -4,7 +4,7 @@ import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from service.rag_service import run_rag
+from service.rag_service import run_rag_with_context
 from repository.qdrant_repository import QdrantRetriever
 
 st.set_page_config(page_title="Analise de métricas", page_icon="🤖", layout="wide")
@@ -64,7 +64,7 @@ if prompt:
             try:
                 retriever = QdrantRetriever()
                 contexts = retriever.search(prompt, top_k=top_k)
-                answer = run_rag(prompt)
+                answer = run_rag_with_context(prompt, contexts, model_name=model, temperature=temperature)
 
                 st.markdown(answer)
                 with st.expander("📚 Contextos utilizados"):

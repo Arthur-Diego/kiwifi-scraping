@@ -35,6 +35,7 @@ dist/
 Thumbs.db
 
 # Arquivos de ambiente
+.env
 *.env
 .env.*
 
@@ -47,12 +48,17 @@ Thumbs.db
 # ==============================
 # Dados gerados pela aplicação
 # ==============================
+data/chat_history/
+data/reports/
 exports/
 *.jsonl
 *.csv
 *.parquet
 *.sqlite
 *.db
+
+# Saidas de processamento (downloads/analises)
+Análise da Campanha de Topo e Configuração de Pixel a nível de MCC/
 
 # ==============================
 # Qdrant data (NÃO versionar)

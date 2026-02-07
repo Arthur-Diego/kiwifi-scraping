@@ -179,10 +179,7 @@ def main():
         st.chat_message("user").markdown(f"🧑‍💼 Você: {query}")
 
         with st.spinner("🔍 Consultando contexto e gerando resposta..."):
-            try:
-                answer = run_rag(query, top_k=top_k, temperature=temperature)
-            except TypeError:
-                answer = run_rag(query)
+            answer = run_rag(query, top_k=top_k, temperature=temperature)
 
         save_message(campaign_id, "assistant", answer)
         st.chat_message("assistant").markdown(f"🤖 {answer}")
@@ -197,10 +194,7 @@ def main():
                 "incluindo métricas, aprendizados e recomendações:\n\n"
                 f"{full_history}"
             )
-            try:
-                report = run_rag(prompt, top_k=top_k, temperature=0.5)
-            except TypeError:
-                report = run_rag(prompt)
+            report = run_rag(prompt, top_k=top_k, temperature=0.5)
 
             report_file = REPORT_DIR / f"{campaign_id}_{datetime.now().date()}.txt"
             report_file.write_text(report, encoding="utf-8")

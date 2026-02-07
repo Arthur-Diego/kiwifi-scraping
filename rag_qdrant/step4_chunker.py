@@ -1,12 +1,32 @@
-from typing import List, Iterable
+from typing import List
 from dataclasses import dataclass
 
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
 
 from .step2_tokenization import TokenTools
 from .domain import Chunk
 from .config import ChunkingConfig
+
+
+def _neighbor_cosine_similarity(vecs: np.ndarray) -> np.ndarray:
+    """
+    Similaridade do cosseno entre vizinhos consecutivos (i-1, i).
+
+    Evita criar matriz NxN (muito cara) só para olhar vizinhos.
+    Retorna um array onde sim[0] = 1.0 por convenção.
+    """
+    vecs = np.asarray(vecs)
+    n = vecs.shape[0]
+    if n == 0:
+        return np.asarray([], dtype=np.float32)
+
+    sims = np.ones(n, dtype=np.float32)
+    norms = np.linalg.norm(vecs, axis=1)
+    for i in range(1, n):
+        denom = norms[i] * norms[i - 1]
+        sims[i] = float(np.dot(vecs[i], vecs[i - 1]) / denom) if denom else 0.0
+    return sims
+
 
 @dataclass
 class SemanticChunker:
@@ -43,7 +63,6 @@ class SemanticChunker:
         chunks: List[Chunk] = []
         current: List[str] = []
         current_tok = 0
-        idx = 0
         window_chunks: List[str] = []
 
         for s in sentences:
@@ -59,7 +78,16 @@ class SemanticChunker:
 
         # Agora refina cada janela com o método semântico fino
         for w in window_chunks:
-            chunks.extend(self._chunk_sentences(source, self.token_tools.split_sentences(w), date, section, topic_hint, starting_index=len(chunks)))
+            chunks.extend(
+                self._chunk_sentences(
+                    source,
+                    self.token_tools.split_sentences(w),
+                    date,
+                    section,
+                    topic_hint,
+                    starting_index=len(chunks),
+                )
+            )
         return chunks
 
     def _chunk_sentences(self, source: str, sentences: List[str], date: str | None, section: str | None,
@@ -67,9 +95,7 @@ class SemanticChunker:
         tokens = self.token_tools.tokens_for_sentences(sentences)
         # Embeddings por sentença para medir quedas de similaridade
         sent_vecs = self.embedder.encode(sentences)
-        sim = cosine_similarity(sent_vecs, sent_vecs)  # matriz N x N (pode ser pesada, mas funciona para janelas moderadas)
-        # Otimizamos usando tridiagonal: vizinhos próximos
-        neighbor_sim = np.array([sim[i, i-1] if i > 0 else 1.0 for i in range(len(sentences))])
+        neighbor_sim = _neighbor_cosine_similarity(sent_vecs)
 
         chunks: List[Chunk] = []
         buf: List[str] = []
@@ -94,7 +120,9 @@ class SemanticChunker:
                 chunk_idx += 1
 
                 # inicia próximo buffer com sobreposição
-                buf, buf_tok, start_idx = self._with_overlap(buf, self.cfg.overlap_tokens), self.token_tools.count_tokens(" ".join(self._with_overlap(buf, self.cfg.overlap_tokens))), i
+                buf = self._with_overlap(buf, self.cfg.overlap_tokens)
+                buf_tok = self.token_tools.count_tokens(" ".join(buf)) if buf else 0
+                start_idx = i
 
             # Critério semântico: queda de similaridade
             if buf and neighbor_sim[i] < self.cfg.similarity_break_threshold and buf_tok >= self.cfg.target_tokens_per_chunk:
@@ -110,7 +138,9 @@ class SemanticChunker:
                     date=date, section=section, topic_hint=topic_hint
                 ))
                 chunk_idx += 1
-                buf, buf_tok, start_idx = self._with_overlap(buf, self.cfg.overlap_tokens), self.token_tools.count_tokens(" ".join(self._with_overlap(buf, self.cfg.overlap_tokens))), i
+                buf = self._with_overlap(buf, self.cfg.overlap_tokens)
+                buf_tok = self.token_tools.count_tokens(" ".join(buf)) if buf else 0
+                start_idx = i
 
             # adiciona a sentença
             buf.append(s)

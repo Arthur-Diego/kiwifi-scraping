@@ -1,8 +1,8 @@
 import argparse
 from pathlib import Path
-from typing import List
+from typing import Sequence
 
-from .config import ChunkingConfig, EmbeddingConfig, QdrantConfig, Paths
+from .config import ChunkingConfig, EmbeddingConfig, QdrantConfig
 from .step1_ingestion import TextLoader
 from .step2_tokenization import TokenTools
 from .step4_chunker import SemanticChunker
@@ -12,7 +12,7 @@ from .step6_qdrant_writer import QdrantRepository
 
 
 def run_pipeline(
-    inputs: List[str],
+    inputs: Sequence[str],
     export_filename: str,
     qdrant_collection: str,
     date: str | None,
@@ -48,7 +48,7 @@ def run_pipeline(
                     text=text,
                     date=date,
                     section=meta.get("section"),
-                    topic_hint = meta.get("topic_hint")
+                    topic_hint=meta.get("topic_hint"),
                 )
                 all_chunks.extend(chunks)
 
@@ -62,7 +62,7 @@ def run_pipeline(
                         text=text,
                         date=date,
                         section=meta.get("section"),
-                        topic_hint = meta.get("topic_hint")
+                        topic_hint=meta.get("topic_hint"),
                     )
                     all_chunks.extend(chunks)
     # =====================================================

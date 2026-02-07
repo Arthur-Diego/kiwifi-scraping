@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from service.scraping_service import KiwifyScraper
 from service.video_processor_service import VideoProcessor
@@ -17,7 +17,7 @@ def iniciar_extracao(request: ExtracaoRequest):
             scraping_service=scraping_service,
             video_processor_service=VideoProcessor
         )
-        resultado = facade.executar_extracao()
-        return {"status": "sucesso", "resultado": resultado}
+        facade.executar_extracao()
+        return {"status": "sucesso"}
     except Exception as e:
-        return {"status": "erro", "mensagem": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
