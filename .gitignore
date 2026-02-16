@@ -6,9 +6,13 @@ ENV*/
 venv-api-scraping/
 venv-project-api-scraping/
 venv-project-scraping/
+.venv-linux/
+.venv-wsl/
 
 # Pastas específicas mencionadas
 Resultados/
+backup_legacy/
+context/
 
 # Arquivos do PyCharm / IntelliJ IDEA
 .idea/
@@ -69,3 +73,5 @@ qdrant_storage/.qdrant_fs_check
 qdrant_storage/aliases/
 qdrant_storage/collections/
 qdrant_storage/raft_state.json
+
+*.Zone.Identifier
