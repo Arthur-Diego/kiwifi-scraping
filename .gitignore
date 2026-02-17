@@ -13,6 +13,8 @@ venv-project-scraping/
 Resultados/
 backup_legacy/
 context/
+context*/
+data/
 
 # Arquivos do PyCharm / IntelliJ IDEA
 .idea/

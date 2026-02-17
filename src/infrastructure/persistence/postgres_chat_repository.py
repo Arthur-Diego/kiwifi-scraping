@@ -54,9 +54,9 @@ class PostgresChatRepository:
                         """
                         CREATE TABLE IF NOT EXISTS campaigns (
                             id SERIAL PRIMARY KEY,
-                            campaign_name TEXT NOT NULL,
-                            product_name TEXT NOT NULL,
-                            date_created TIMESTAMPTZ NOT NULL
+                            campaign_name TEXT,
+                            product_name TEXT,
+                            date_created TIMESTAMPTZ DEFAULT NOW()
                         )
                         """
                     )
@@ -96,11 +96,18 @@ class PostgresChatRepository:
                     )
                     cur.execute("CREATE INDEX IF NOT EXISTS idx_messages_campaign_id ON messages(campaign_id)")
                     cur.execute("CREATE INDEX IF NOT EXISTS idx_metrics_campaign_id ON metrics(campaign_id)")
+                    # Backward-compatible migration for existing databases.
+                    cur.execute("ALTER TABLE campaigns ALTER COLUMN campaign_name DROP NOT NULL")
+                    cur.execute("ALTER TABLE campaigns ALTER COLUMN product_name DROP NOT NULL")
+                    cur.execute("ALTER TABLE campaigns ALTER COLUMN date_created DROP NOT NULL")
+                    cur.execute("ALTER TABLE campaigns ALTER COLUMN date_created SET DEFAULT NOW()")
                 conn.commit()
 
         self._run_with_retry(_op, retries=15, sleep_s=0.4)
 
-    def create_campaign(self, campaign_name: str, product_name: str) -> int:
+    def create_campaign(self, campaign_name: str | None = None, product_name: str | None = None) -> int:
+        campaign_name = campaign_name.strip() if campaign_name else None
+        product_name = product_name.strip() if product_name else None
         date_created = datetime.now(timezone.utc)
 
         def _op() -> int:
@@ -170,6 +177,9 @@ class PostgresChatRepository:
         return [dict(row) for row in rows]
 
     def save_metrics(self, campaign_id: int, metrics: dict[str, Any]) -> None:
+        latest = self.get_metrics(campaign_id) or {}
+        merged = {**latest, **metrics}
+
         def _op() -> None:
             with self._connect() as conn:
                 with conn.cursor() as cur:
@@ -183,20 +193,20 @@ class PostgresChatRepository:
                         """,
                         (
                             campaign_id,
-                            metrics.get("impressions"),
-                            metrics.get("clicks"),
-                            metrics.get("ctr"),
-                            metrics.get("conversions"),
-                            metrics.get("cost_per_conversion"),
-                            metrics.get("conversion_rate"),
-                            metrics.get("total_cost"),
-                            metrics.get("daily_budget"),
-                            metrics.get("cpc"),
-                            Json(metrics.get("keyword_data")) if metrics.get("keyword_data") is not None else None,
-                            metrics.get("demographic_data"),
-                            metrics.get("device_data"),
-                            metrics.get("ad_performance"),
-                            metrics.get("trends"),
+                            merged.get("impressions"),
+                            merged.get("clicks"),
+                            merged.get("ctr"),
+                            merged.get("conversions"),
+                            merged.get("cost_per_conversion"),
+                            merged.get("conversion_rate"),
+                            merged.get("total_cost"),
+                            merged.get("daily_budget"),
+                            merged.get("cpc"),
+                            Json(merged.get("keyword_data")) if merged.get("keyword_data") is not None else None,
+                            merged.get("demographic_data"),
+                            merged.get("device_data"),
+                            merged.get("ad_performance"),
+                            merged.get("trends"),
                             datetime.now(timezone.utc),
                         ),
                     )

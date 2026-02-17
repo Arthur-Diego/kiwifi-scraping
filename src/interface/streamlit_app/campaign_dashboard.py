@@ -5,6 +5,7 @@ from datetime import datetime
 
 import streamlit as st
 
+from src.application.services.campaign_metrics_extractor import extract_campaign_metrics_from_prompt
 from src.application.use_cases.chat_with_knowledge import ChatWithKnowledgeInput
 from src.infrastructure.config import AppConfig
 from src.infrastructure.persistence.postgres_chat_repository import PostgresChatRepository
@@ -145,6 +146,11 @@ def main() -> None:
         return
 
     repo.save_message(campaign_id, "user", prompt)
+    detected_metrics = extract_campaign_metrics_from_prompt(prompt)
+    if detected_metrics:
+        repo.save_metrics(campaign_id, detected_metrics)
+        fields = ", ".join(sorted(detected_metrics.keys()))
+        st.caption(f"Metricas detectadas no prompt e salvas: {fields}")
     st.chat_message("user").markdown(prompt)
 
     with st.chat_message("assistant"):
