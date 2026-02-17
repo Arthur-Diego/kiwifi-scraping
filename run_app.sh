@@ -4,6 +4,14 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
+# Load .env to centralize sensitive configuration.
+if [[ -f "$ROOT_DIR/.env" ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "$ROOT_DIR/.env"
+  set +a
+fi
+
 LOG_DIR="$ROOT_DIR/logs"
 mkdir -p "$LOG_DIR"
 
@@ -25,7 +33,7 @@ POSTGRES_DSN="${POSTGRES_DSN:-postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}
 usage() {
   cat <<'EOF'
 Uso:
-  ./run_app.sh [--transcripts "CAMINHO"] [--collection NOME] [--skip-ingest] [--skip-db-init] [--ui-page chat|dashboard] [--streamlit-port PORT] [--without-postgres-container]
+  ./run_app.sh [--transcripts "CAMINHO"] [--collection NOME] [--skip-ingest] [--skip-db-init] [--ui-page chat|dashboard|product-mining] [--streamlit-port PORT] [--without-postgres-container]
 
 Exemplos:
   ./run_app.sh --transcripts "/mnt/c/Users/arthu/OneDrive/Área de Trabalho/CURSO_CVD"
@@ -33,6 +41,7 @@ Exemplos:
   ./run_app.sh --skip-ingest
   ./run_app.sh --skip-db-init
   ./run_app.sh --ui-page dashboard
+  ./run_app.sh --ui-page product-mining
   ./run_app.sh --streamlit-port 8502
   ./run_app.sh --without-postgres-container
 EOF
@@ -115,7 +124,7 @@ if [[ "$ARGS_PROVIDED" != "true" ]]; then
     SKIP_DB_INIT="false"
   fi
 
-  read -r -p "Qual tela Streamlit deseja abrir? [chat/dashboard]: " input_ui
+  read -r -p "Qual tela Streamlit deseja abrir? [chat/dashboard/product-mining]: " input_ui
   UI_PAGE="${input_ui:-chat}"
 
   if ask_yes_no "Deseja subir container Postgres local?" "y"; then
@@ -125,8 +134,8 @@ if [[ "$ARGS_PROVIDED" != "true" ]]; then
   fi
 fi
 
-if [[ "$UI_PAGE" != "chat" && "$UI_PAGE" != "dashboard" ]]; then
-  echo "Erro: --ui-page deve ser 'chat' ou 'dashboard'."
+if [[ "$UI_PAGE" != "chat" && "$UI_PAGE" != "dashboard" && "$UI_PAGE" != "product-mining" ]]; then
+  echo "Erro: --ui-page deve ser 'chat', 'dashboard' ou 'product-mining'."
   exit 1
 fi
 
@@ -274,6 +283,8 @@ API_PID=$!
 STREAMLIT_APP="src/interface/streamlit_app/app.py"
 if [[ "$UI_PAGE" == "dashboard" ]]; then
   STREAMLIT_APP="src/interface/streamlit_app/campaign_dashboard.py"
+elif [[ "$UI_PAGE" == "product-mining" ]]; then
+  STREAMLIT_APP="src/interface/streamlit_app/product_mining_dashboard.py"
 fi
 
 SELECTED_STREAMLIT_PORT="$(pick_free_port "$STREAMLIT_PORT")"

@@ -16,3 +16,9 @@ class IngestRequest(BaseModel):
     collection: str = "transcricoes"
     chunk_size_chars: int = 1200
     chunk_overlap_chars: int = 120
+
+
+class ProductMiningListRequest(BaseModel):
+    limit: int = Field(default=100, ge=1, le=1000)
+    classification: str | None = None
+    platform: str | None = None

@@ -7,6 +7,7 @@ import time
 import psycopg2
 
 from src.infrastructure.persistence.postgres_chat_repository import PostgresChatRepository
+from src.infrastructure.persistence.postgres_product_mining_repository import PostgresProductMiningRepository
 
 
 def main() -> None:
@@ -21,6 +22,8 @@ def main() -> None:
     for i in range(retries):
         try:
             repo = PostgresChatRepository(dsn=args.db_dsn, ensure_schema=True)
+            pm_repo = PostgresProductMiningRepository(dsn=args.db_dsn)
+            pm_repo.ensure_schema()
             break
         except psycopg2.OperationalError:
             if i == retries - 1:

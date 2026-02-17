@@ -29,3 +29,4 @@ A ideia é manter estes arquivos **curtos, versionados e vivos**.
 14. `14_CAMPAIGN_MEMORY.md` — memória cronológica de campanhas + conhecimento
 15. `15_PRODUCT_MINING.md` — garimpagem de produtos (futuro)
 16. `16_YOUTUBE_INGESTION.md` — ingestão de conteúdos atuais (futuro)
+17. `17_PRODUCT_MINING_MVP_IMPLEMENTATION.md` — implementação do MVP de garimpagem (batch + DB + Streamlit)
