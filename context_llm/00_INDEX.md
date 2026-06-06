@@ -30,3 +30,8 @@ A ideia é manter estes arquivos **curtos, versionados e vivos**.
 15. `15_PRODUCT_MINING.md` — garimpagem de produtos (futuro)
 16. `16_YOUTUBE_INGESTION.md` — ingestão de conteúdos atuais (futuro)
 17. `17_PRODUCT_MINING_MVP_IMPLEMENTATION.md` — implementação do MVP de garimpagem (batch + DB + Streamlit)
+
+## Documentos adicionais (consolidados de `context/`)
+- `guidelines.md` — diretrizes de engenharia migradas da antiga pasta `context/`
+- `docs/adr/` — ADRs migrados: `0001-use-qdrant-vector-store`, `0002-embeddings-and-semantic-chunking`, `0003-selenium-wire-for-scraping` (+ `0000-adr-template`)
+- `docs/QDRANT_DOC.md` — referência de operação do Qdrant

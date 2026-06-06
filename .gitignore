@@ -1,81 +1,92 @@
-# Virtual environments
+# ==============================
+# Ambientes virtuais (padrao unico: .venv)
+# ==============================
 .venv/
+venv/
 venv*/
 env*/
 ENV*/
-venv-api-scraping/
-venv-project-api-scraping/
-venv-project-scraping/
 .venv-linux/
 .venv-wsl/
+venv-project-kiwifi/
 
-# Pastas específicas mencionadas
-Resultados/
+# Gerenciador de versao do Python (ferramenta, fora do versionamento)
+.pyenv/
+
+# ==============================
+# Quarentena (expurgo gradual)
+# ==============================
+_quarantine/
+
+# Codigo legado: mantido no disco (ignorado, como antes) porque
+# tests/regression/test_legacy_vs_new_regression.py importa de backup_legacy.
 backup_legacy/
-context/
-context*/
-data/
-!context_llm/
-!context_llm/**
 
-# Arquivos do PyCharm / IntelliJ IDEA
-.idea/
-*.iml
-
-# Cache do Python
+# ==============================
+# Caches e artefatos do Python
+# ==============================
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
 *.p~
 *.swp
+.pytest_cache/
 
-# Build e distribuição
+# Build e distribuicao
 build/
 dist/
 *.egg-info/
 
-# Logs
-*.log
+# ==============================
+# IDEs
+# ==============================
+.idea/
+*.iml
 
-# Configurações do sistema operacional
+# ==============================
+# Artefatos do Windows / SO
+# ==============================
+*.Zone.Identifier
 .DS_Store
 Thumbs.db
 
-# Arquivos de ambiente
-.env
-*.env
-.env.*
-
-# Arquivos temporários
-*.tmp
-*.bak
-
-# Ou
-
 # ==============================
-# Dados gerados pela aplicação
+# Logs e exports (regeneraveis)
 # ==============================
-data/chat_history/
-data/reports/
+logs/
+*.log
 exports/
+
+# ==============================
+# Dados gerados / bases locais
+# ==============================
+data/
+data/*.db
+*.db
+*.sqlite
 *.jsonl
 *.csv
 *.parquet
-*.sqlite
-*.db
-
-# Saidas de processamento (downloads/analises)
-Análise da Campanha de Topo e Configuração de Pixel a nível de MCC/
 
 # ==============================
-# Qdrant data (NÃO versionar)
+# Dados de runtime (NAO versionar; mantidos na raiz para os mounts do compose)
 # ==============================
+postgres_data/
 qdrant_storage/
 qdrant_snapshots/
-qdrant_storage/.qdrant_fs_check
-qdrant_storage/aliases/
-qdrant_storage/collections/
-qdrant_storage/raft_state.json
 
-*.Zone.Identifier
+# ==============================
+# Segredos e ambiente
+# ==============================
+.env
+*.env
+.env.*
+!.env.example
+
+# ==============================
+# Documentacao quarentenada (context_llm e a fonte canonica)
+# ==============================
+context/
+
+# Arquivos temporarios
+*.tmp
+*.bak
